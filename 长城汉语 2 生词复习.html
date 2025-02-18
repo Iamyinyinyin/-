@@ -1,147 +1,327 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>长城汉语2 单词复习</title>
+    <title>词语魔法练习 ✨</title>
     <style>
+        /* 字体设置 */
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap'); /* 楷体 */
+        @import url('https://fonts.googleapis.com/css2?family=TH+Sarabun+PSK&display=swap'); /* TH SarabunPSK */
+
+        :root {
+            --main-color: #FF99CC;
+            --secondary-color: #66CCFF;
+        }
+
         body {
-            font-family: "楷体", "TH SarabunPSK", sans-serif;
-            text-align: center;
-            background-color: #f8f8f8;
-        }
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: #fff;
+            font-family: 'Ma Shan Zheng', cursive;
+            background: linear-gradient(135deg, #FFE6FF 0%, #E6FFFF 100%);
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         .header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
+            gap: 10px;
+            margin-bottom: 30px;
         }
-        .header img {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
+
+        .title {
+            font-size: 2.5rem;
+            color: #FF6699;
+            text-shadow: 2px 2px 0 white;
         }
-        .board {
-            background: #2E8B57;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 20px;
-            min-height: 100px;
+
+        .chalkboard {
+            width: 80vw;
+            max-width: 600px;
+            height: 300px;
+            background: #2A2A2A;
+            border-radius: 20px;
+            border: 10px solid #5A4D41;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             display: flex;
-            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
         }
-        .word {
-            font-size: 24px;
+
+        .word-display {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            padding: 20px;
         }
-        .pinyin, .thai {
-            font-size: 18px;
+
+        .thai, .english {
+            font-family: 'TH Sarabun PSK', sans-serif;
+            font-size: 1.5rem;
+            margin-top: 10px;
         }
-        .buttons {
+
+        .controls {
+            display: flex;
+            gap: 20px;
             margin-top: 20px;
         }
-        button {
-            font-size: 16px;
-            padding: 10px;
-            margin: 5px;
+
+        .btn {
+            padding: 15px 30px;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
+            font-size: 1.2rem;
             cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--main-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .start { background: #3498db; color: white; }
-        .prev, .next { background: #f39c12; color: white; }
-        .success { display: none; font-size: 20px; color: green; margin-top: 20px; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+        }
+
+        .success {
+            color: #FFD700;
+            font-size: 3rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
+    <div class="header">
+        <span>⭐️</span>
+        <h1 class="title">词语练习</h1>
+    </div>
 
-    <div class="container">
-        <div class="header">
-            <img src="icon.png" alt="Icon"> 长城汉语2 单词复习
+    <div class="chalkboard">
+        <div id="word" class="word-display">
+            <div id="chinese"></div>
+            <div id="thai" class="thai"></div>
+            <div id="english" class="english"></div>
         </div>
-        <div class="board">
-            <div class="word">点击开始</div>
-            <div class="pinyin"></div>
-            <div class="thai"></div>
-        </div>
-        <div class="buttons">
-            <button class="start" onclick="startReview()">开始</button>
-            <button class="prev" onclick="prevWord()" disabled>上一个</button>
-            <button class="next" onclick="nextWord()" disabled>下一个</button>
-        </div>
-        <div class="success">🎉 挑战成功！</div>
+    </div>
+
+    <div class="controls">
+        <button id="startBtn" class="btn">开始魔法练习 ✨</button>
+        <button id="prevBtn" class="btn hidden">上一个 ←</button>
+        <button id="nextBtn" class="btn hidden">下一个 →</button>
     </div>
 
     <script>
         const words = [
-            { chinese: "号码", pinyin: "hàomǎ", thai: "หมายเลข" },
-            { chinese: "详细", pinyin: "xiángxì", thai: "ละเอียด" },
-            { chinese: "纸条", pinyin: "zhǐtiáo", thai: "กระดาษฝากข้อความ" },
-            { chinese: "地图册", pinyin: "dìtúcè", thai: "หนังสือแผนที่" },
-            { chinese: "黄色", pinyin: "huángsè", thai: "สีเหลือง" },
-            { chinese: "着急", pinyin: "zháojí", thai: "รีบร้อน" },
-            { chinese: "普通", pinyin: "pǔtōng", thai: "ธรรมดา" }
-            // 可以继续添加所有单词...
+            { chinese: "号码", thai: "หมายเลข", english: "hàomǎ" },
+            { chinese: "详细", thai: "ละเอียด", english: "xiángxì" },
+            { chinese: "纸条", thai: "กระดาษฝากข้อความ", english: "zhǐtiáo" },
+            { chinese: "地图册", thai: "หนังสือแผนที่", english: "dìtúcè" },
+            { chinese: "黄色", thai: "สีเหลือง", english: "huángsè" },
+            { chinese: "着急", thai: "รีบร้อน", english: "zháojí" },
+            { chinese: "普通", thai: "ธรรมดา", english: "pǔtōng" },
+            { chinese: "上面", thai: "ด้านบน", english: "shàngmiàn" },
+            { chinese: "哈", thai: "ฮ่า ๆ (เสียงหัวเราะ)", english: "hā" },
+            { chinese: "地图", thai: "แผนที่", english: "dìtú" },
+            { chinese: "没问题", thai: "ไม่มีปัญหา", english: "méi wèntí" },
+            { chinese: "样", thai: "ประเภท แบบ", english: "yàng" },
+            { chinese: "书店", thai: "ร้านหนังสือ", english: "shūdiàn" },
+            { chinese: "什么样", thai: "ประเภทไหน", english: "shénme yàng" },
+            { chinese: "帮", thai: "ช่วย", english: "bāng" },
+            { chinese: "快", thai: "รีบ", english: "kuài" },
+            { chinese: "本", thai: "เล่ม (ลักษณะนาม)", english: "běn" },
+            { chinese: "院子", thai: "ลานกว้าง", english: "yuànzi" },
+            { chinese: "那个", thai: "อันนั้น", english: "nàge" },
+            { chinese: "打扰", thai: "รบกวน", english: "dǎrǎo" },
+            { chinese: "女朋友", thai: "แฟนสาว", english: "nǚ péngyou" },
+            { chinese: "带", thai: "นำ พา", english: "dài" },
+            { chinese: "电车", thai: "รถเมล์ไฟฟ้า", english: "diànchē" },
+            { chinese: "分钟", thai: "นาที", english: "fēnzhōng" },
+            { chinese: "出租车", thai: "รถแท็กซี่", english: "chūzūchē" },
+            { chinese: "古玩城", thai: "ตลาดขายของเก่า", english: "gǔwánchéng" },
+            { chinese: "汽车", thai: "รถยนต์", english: "qìchē" },
+            { chinese: "公共汽车", thai: "รถเมล์", english: "gōnggòng qìchē" },
+            { chinese: "站", thai: "ป้ายรถ สถานี", english: "zhàn" },
+            { chinese: "路", thai: "สาย (รถเมล์)", english: "lù" },
+            { chinese: "得", thai: "ต้อง", english: "děi" },
+            { chinese: "站牌", thai: "ป้ายรถเมล์", english: "zhànpái" },
+            { chinese: "坐", thai: "นั่ง", english: "zuò" },
+            { chinese: "线", thai: "เส้น สาย", english: "xiàn" },
+            { chinese: "上车", thai: "ขึ้นรถ", english: "shàng chē" },
+            { chinese: "环线", thai: "สายวิ่งวนรอบ", english: "huánxiàn" },
+            { chinese: "辆", thai: "คัน (ลักษณะนาม)", english: "liàng" },
+            { chinese: "不客气", thai: "ไม่ต้องเกรงใจ", english: "bú kèqi" },
+            { chinese: "西直门", thai: "ซีจื๋อเหมิน", english: "Xīzhímén" },
+            { chinese: "就", thai: "ก็", english: "jiù" },
+            { chinese: "地铁", thai: "รถไฟฟ้าใต้ดิน", english: "dìtiě" },
+            { chinese: "对面", thai: "ฝั่งตรงข้าม", english: "duìmiàn" },
+            { chinese: "窗户", thai: "หน้าต่าง", english: "chuānghu" },
+            { chinese: "常", thai: "บ่อย", english: "cháng" },
+            { chinese: "书", thai: "หนังสือ", english: "shū" },
+            { chinese: "台灯", thai: "โคมไฟตั้งโต๊ะ", english: "táidēng" },
+            { chinese: "灯", thai: "ดวงไฟ", english: "dēng" },
+            { chinese: "洗衣房", thai: "ห้องซักรีด", english: "xǐyīfáng" },
+            { chinese: "同屋", thai: "เพื่อนร่วมห้องพัก", english: "tóngwū" },
+            { chinese: "卫生间", thai: "ห้องน้ำ", english: "wèishēngjiān" },
+            { chinese: "厨房", thai: "ห้องครัว", english: "chúfáng" },
+            { chinese: "应该", thai: "ควรจะ", english: "yīnggāi" },
+            { chinese: "一定", thai: "แน่นอน", english: "yídìng" },
+            { chinese: "宿舍楼", thai: "อาคารหอพัก", english: "sùshèlóu" },
+            { chinese: "共", thai: "ร่วมกัน", english: "gòng" },
+            { chinese: "靠", thai: "ติด", english: "kào" },
+            { chinese: "身体", thai: "ร่างกาย", english: "shēntǐ" },
+            { chinese: "书桌", thai: "โต๊ะหนังสือ", english: "shūzhuō" },
+            { chinese: "做饭", thai: "ทำอาหาร", english: "zuò fàn" },
+            { chinese: "公用", thai: "สาธารณะ", english: "gōngyòng" },
+            { chinese: "隔壁", thai: "ห้องข้าง ๆ หรือบ้านข้างเคียง", english: "gébì" },
+            { chinese: "书房", thai: "ห้องหนังสือ", english: "shūfáng" },
+            { chinese: "书柜", thai: "ตู้หนังสือ", english: "shūguì" },
+            { chinese: "注意", thai: "ดูแล ระวัง", english: "zhùyì" },
+            { chinese: "大灯", thai: "ไฟดวงใหญ่", english: "dàdēng" },
+            { chinese: "那儿", thai: "ที่นั่น", english: "nàr" },
+            { chinese: "还行", thai: "พอใช้ได้", english: "hái xíng" },
+            { chinese: "乱", thai: "รก", english: "luàn" },
+            { chinese: "不少", thai: "เยอะ ไม่น้อย", english: "bù shǎo" },
+            { chinese: "担心", thai: "กังวล เป็นห่วง", english: "dānxīn" },
+            { chinese: "开", thai: "เปิด", english: "kāi" },
+            { chinese: "星期一", thai: "วันจันทร์", english: "Xīngqīyī" },
+            { chinese: "平时", thai: "ปรกติ", english: "píngshí" },
+            { chinese: "浴室", thai: "ห้องอาบน้ำ", english: "yùshì" },
+            { chinese: "哪里哪里", thai: "ไม่หรอก (เป็นคำพูดแสดงการถ่อมตน)", english: "nǎli nǎli" },
+            { chinese: "阳台", thai: "ระเบียง", english: "yángtái" },
+            { chinese: "地点", thai: "สถานที่", english: "dìdiǎn" },
+            { chinese: "转告", thai: "บอกต่อ", english: "zhuǎngào" },
+            { chinese: "老", thai: "ตลอด", english: "lǎo" },
+            { chinese: "周末", thai: "สุดสัปดาห์", english: "zhōumò" },
+            { chinese: "上课", thai: "เข้าเรียน", english: "shàngkè" },
+            { chinese: "哪位", thai: "ท่านไหน", english: "nǎ wèi" },
+            { chinese: "不见不散", thai: "ไม่เจอไม่แยกย้าย", english: "bújiàn bú sàn" },
+            { chinese: "记录", thai: "จดบันทึก", english: "jìlù" },
+            { chinese: "舞会", thai: "งานเต้นรำ", english: "wǔhuì" },
+            { chinese: "噢", thai: "อ้อ", english: "ō" },
+            { chinese: "查", thai: "ตรวจ", english: "chá" },
+            { chinese: "门口", thai: "หน้าประตู", english: "ménkǒu" },
+            { chinese: "请稍等", thai: "รอสักครู่", english: "qǐng shāo děng" },
+            { chinese: "数码", thai: "อิเล็กทรอนิก", english: "shùmǎ" },
+            { chinese: "报名", thai: "สมัคร", english: "bàomíng" },
+            { chinese: "报名处", thai: "แผนกรับสมัคร", english: "bàomíngchù" },
+            { chinese: "错", thai: "ผิด", english: "cuò" },
+            { chinese: "占线", thai: "สายไม่ว่าง", english: "zhànxiàn" },
+            { chinese: "俱乐部", thai: "ชมรม", english: "jùlèbù" },
+            { chinese: "转", thai: "โอน (สายโทรศัพท์)", english: "zhuǎn" },
+            { chinese: "告诉", thai: "บอก", english: "gàosu" },
+            { chinese: "清楚", thai: "ชัดเจน", english: "qīngchu" },
+            { chinese: "世纪", thai: "ศตวรรษ", english: "shìjì" },
+            { chinese: "礼堂", thai: "หอประชุม", english: "lǐtáng" },
+            { chinese: "登山", thai: "ปีนเขา", english: "dēngshān" },
+            { chinese: "短信", thai: "ข้อความสั้น", english: "duǎnxìn" },
+            { chinese: "世纪数码公司", thai: "บริษัทเดอะเซ็นจูรี่ดิจิตอล", english: "Shìjì Shùmǎ Gōngsī" },
+            { chinese: "周六", thai: "วันเสาร์", english: "Zhōuliù" },
+            { chinese: "发", thai: "ส่ง", english: "fā" },
+            { chinese: "同学", thai: "เพื่อนนักเรียน", english: "tóngxué" },
+            { chinese: "筷子", thai: "ตะเกียบ", english: "kuàizi" },
+            { chinese: "副", thai: "ชุด (ลักษณะนาม)", english: "fù" },
+            { chinese: "刀叉", thai: "มีดและส้อม", english: "dāo-chā" },
+            { chinese: "难", thai: "ยาก", english: "nán" },
+            { chinese: "好吃", thai: "อร่อย", english: "hǎochī" },
+            { chinese: "用", thai: "ใช้", english: "yòng" },
+            { chinese: "服务员", thai: "พนักงานบริการ", english: "fúwùyuán" },
+            { chinese: "不用", thai: "ไม่ต้อง", english: "búyòng" },
+            { chinese: "点", thai: "สั่ง", english: "diǎn" },
+            { chinese: "开玩笑", thai: "ล้อเล่น", english: "kāi wánxiào" },
+            { chinese: "菜单", thai: "รายการอาหาร", english: "càidān" },
+            { chinese: "饱", thai: "อิ่ม", english: "bǎo" },
+            { chinese: "请客", thai: "เลี้ยงแขก", english: "qǐngkè" },
+            { chinese: "极", thai: "ที่สุด", english: "jí" },
+            { chinese: "啤酒", thai: "เบียร์", english: "píjiǔ" },
+            { chinese: "烤鸭", thai: "เป็ดย่าง", english: "kǎoyā" },
+            { chinese: "打包", thai: "ห่อกลับบ้าน", english: "dǎbāo" },
+            { chinese: "来", thai: "ขอ", english: "lái" },
+            { chinese: "碗", thai: "ถ้วย", english: "wǎn" },
+            { chinese: "勺子	", thai: "ช้อน", english: "sháozi" },
+            { chinese: "结账", thai: "คิดเงิน", english: "jiézhàng" },
+            { chinese: "味道	", thai: "รสชาติ", english: "wèidào" },
+            { chinese: "这些	", thai: "เหล่านี้", english: "zhèxiē" },
+            { chinese: "咕咾肉", thai: "หมูผัดเปรี้ยวหวาน", english: "gūlǎoròu" },
+            { chinese: "已经", thai: "ได้...แล้ว", english: "yǐjīng" },
+            { chinese: "菜", thai: "กับข้าว", english: "cài" },
+            { chinese: "刚才	", thai: "เมื่อสักครู่", english: "gāngcái" },
+            { chinese: "茶", thai: "ชา", english: "chá" },
+            { chinese: "甜", thai: "หวาน", english: "tián" },
+            { chinese: "米饭	", thai: "ข้าวสวย", english: "mǐfàn" },
+            { chinese: "点菜	", thai: "สั่งอาหาร", english: "diǎn cài" },
+            { chinese: "要", thai: "เอา", english: "yào" },
+            { chinese: "清炒西蓝花", thai: "ผัดบล็อคโคลี่", english: "qīngchǎo xīlánhuā" },
+            { chinese: "壶", thai: "กาน้ำ", english: "hú" },
+            { chinese: "（一）点儿", thai: "สักหน่อย", english: "(yì)diǎnr" },
         ];
 
-        let currentIndex = parseInt(localStorage.getItem("wordIndex")) || 0;
+        let currentIndex = -1;
+        const startBtn = document.getElementById('startBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const chineseDisplay = document.getElementById('chinese');
+        const thaiDisplay = document.getElementById('thai');
+        const englishDisplay = document.getElementById('english');
+
+        // 从本地存储加载进度
+        let progress = JSON.parse(localStorage.getItem('wordProgress')) || 0;
 
         function updateWord() {
-            if (currentIndex < words.length) {
-                document.querySelector(".word").textContent = words[currentIndex].chinese;
-                document.querySelector(".pinyin").textContent = words[currentIndex].pinyin;
-                document.querySelector(".thai").textContent = words[currentIndex].thai;
-                document.querySelector(".prev").disabled = currentIndex === 0;
-                document.querySelector(".next").disabled = false;
-            } else {
-                document.querySelector(".board").style.display = "none";
-                document.querySelector(".buttons").style.display = "none";
-                document.querySelector(".success").style.display = "block";
+            if (currentIndex >= 0 && currentIndex < words.length) {
+                chineseDisplay.textContent = words[currentIndex].chinese;
+                thaiDisplay.textContent = words[currentIndex].thai;
+                englishDisplay.textContent = words[currentIndex].english;
             }
-            localStorage.setItem("wordIndex", currentIndex);
+            prevBtn.classList.toggle('hidden', currentIndex === 0);
+
+            if (currentIndex === words.length - 1) {
+                chineseDisplay.innerHTML = `<span class="success">挑战成功！🎉</span>`;
+                thaiDisplay.textContent = "";
+                englishDisplay.textContent = "";
+                nextBtn.classList.add('hidden');
+                prevBtn.classList.add('hidden');
+                startBtn.classList.remove('hidden');
+            }
         }
 
-        function startReview() {
-            currentIndex = 0;
+        startBtn.addEventListener('click', () => {
+            currentIndex = progress;
+            startBtn.classList.add('hidden');
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
             updateWord();
-            document.querySelector(".start").disabled = true;
-            document.querySelector(".prev").disabled = true;
-            document.querySelector(".next").disabled = false;
-        }
+        });
 
-        function prevWord() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateWord();
-            }
-        }
-
-        function nextWord() {
-            if (currentIndex < words.length - 1) {
-                currentIndex++;
-                updateWord();
-            } else {
-                currentIndex = words.length;
-                updateWord();
-            }
-        }
-
-        // 恢复上次学习的进度
-        if (currentIndex > 0) {
-            document.querySelector(".start").disabled = true;
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) currentIndex--;
             updateWord();
+            saveProgress();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < words.length - 1) currentIndex++;
+            updateWord();
+            saveProgress();
+        });
+
+        function saveProgress() {
+            localStorage.setItem('wordProgress', JSON.stringify(currentIndex));
         }
     </script>
-
 </body>
 </html>
