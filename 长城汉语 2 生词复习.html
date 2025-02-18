@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长城汉语2 单词复习</title>
+    <style>
+        body {
+            font-family: "楷体", "TH SarabunPSK", sans-serif;
+            text-align: center;
+            background-color: #f8f8f8;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .board {
+            background: #2E8B57;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .word {
+            font-size: 24px;
+        }
+        .pinyin, .thai {
+            font-size: 18px;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .start { background: #3498db; color: white; }
+        .prev, .next { background: #f39c12; color: white; }
+        .success { display: none; font-size: 20px; color: green; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="icon.png" alt="Icon"> 长城汉语2 单词复习
+        </div>
+        <div class="board">
+            <div class="word">点击开始</div>
+            <div class="pinyin"></div>
+            <div class="thai"></div>
+        </div>
+        <div class="buttons">
+            <button class="start" onclick="startReview()">开始</button>
+            <button class="prev" onclick="prevWord()" disabled>上一个</button>
+            <button class="next" onclick="nextWord()" disabled>下一个</button>
+        </div>
+        <div class="success">🎉 挑战成功！</div>
+    </div>
+
+    <script>
+        const words = [
+            { chinese: "号码", pinyin: "hàomǎ", thai: "หมายเลข" },
+            { chinese: "详细", pinyin: "xiángxì", thai: "ละเอียด" },
+            { chinese: "纸条", pinyin: "zhǐtiáo", thai: "กระดาษฝากข้อความ" },
+            { chinese: "地图册", pinyin: "dìtúcè", thai: "หนังสือแผนที่" },
+            { chinese: "黄色", pinyin: "huángsè", thai: "สีเหลือง" },
+            { chinese: "着急", pinyin: "zháojí", thai: "รีบร้อน" },
+            { chinese: "普通", pinyin: "pǔtōng", thai: "ธรรมดา" }
+            // 可以继续添加所有单词...
+        ];
+
+        let currentIndex = parseInt(localStorage.getItem("wordIndex")) || 0;
+
+        function updateWord() {
+            if (currentIndex < words.length) {
+                document.querySelector(".word").textContent = words[currentIndex].chinese;
+                document.querySelector(".pinyin").textContent = words[currentIndex].pinyin;
+                document.querySelector(".thai").textContent = words[currentIndex].thai;
+                document.querySelector(".prev").disabled = currentIndex === 0;
+                document.querySelector(".next").disabled = false;
+            } else {
+                document.querySelector(".board").style.display = "none";
+                document.querySelector(".buttons").style.display = "none";
+                document.querySelector(".success").style.display = "block";
+            }
+            localStorage.setItem("wordIndex", currentIndex);
+        }
+
+        function startReview() {
+            currentIndex = 0;
+            updateWord();
+            document.querySelector(".start").disabled = true;
+            document.querySelector(".prev").disabled = true;
+            document.querySelector(".next").disabled = false;
+        }
+
+        function prevWord() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateWord();
+            }
+        }
+
+        function nextWord() {
+            if (currentIndex < words.length - 1) {
+                currentIndex++;
+                updateWord();
+            } else {
+                currentIndex = words.length;
+                updateWord();
+            }
+        }
+
+        // 恢复上次学习的进度
+        if (currentIndex > 0) {
+            document.querySelector(".start").disabled = true;
+            updateWord();
+        }
+    </script>
+
+</body>
+</html>
